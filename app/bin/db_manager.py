@@ -3,8 +3,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.request import urlopen
 
-import pkl_module
-from card_db import CardDB
+from bin.utils import pkl_module
+from bin.card_db import CardDB
 
 
 class DBManager:
@@ -29,7 +29,7 @@ class DBManager:
         self.dir = manager_dir
         self.config_path = manager_dir / 'config.pkl'
         self.db = card_db
-        self.last_update_db = None
+        self.last_db_update = None
 
     def __del__(self):
         self.manager_dirs.remove(self.dir)
@@ -37,27 +37,30 @@ class DBManager:
 
     def is_update_available(self):
         self.update_remote_info()
-        if self.last_update_db is None:
+        if self.last_db_update is None:
             return True
-        return self.remote_db_timestamp > self.last_update_db
+        return self.remote_db_timestamp > self.last_db_update
 
-    def update_db(self):
-        if self.is_update_available():
-            self.db.update(self.remote_db_url)
-            self.last_update_db = datetime.now(timezone.utc)
-
-    def force_update_db(self):
-        self.update_remote_info()
+    def db_update(self):
         self.db.update(self.remote_db_url)
-        self.last_update_db = datetime.now(timezone.utc)
+        self.last_db_update = datetime.now(timezone.utc)
 
-    def load_config(self):
+    def db_exists(self):
+        return self.db.exists()
+
+    def db_load(self):
+        self.db.load()
+
+    def config_exists(self) -> bool:
+        return self.config_path.exists()
+
+    def config_load(self):
         config = pkl_module.load(self.config_path)
-        self.last_update_db = config['last_update_db']
+        self.last_db_update = config['last_db_update']
 
-    def save_config(self):
+    def config_save(self):
         config = {
-            'last_update_db': self.last_update_db,
+            'last_db_update': self.last_db_update,
         }
         pkl_module.save(config, self.config_path)
 

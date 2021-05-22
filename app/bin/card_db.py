@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from urllib.request import urlopen
 
-import pkl_module
+from bin.utils import pkl_module
 
 
 class CardDB:
@@ -30,6 +30,9 @@ class CardDB:
 
     def load(self):
         self.data = pkl_module.load(self.path)
+
+    def exists(self) -> bool:
+        return self.path.exists()
 
 
 class PathInUse(Exception):
