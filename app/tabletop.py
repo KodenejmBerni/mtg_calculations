@@ -1,12 +1,15 @@
 import sys
 from pathlib import Path
 from typing import Iterable
+import ctypes
 
+import numpy as np
+from OpenGL.GL.shaders import compileShader, compileProgram
+from OpenGL import GL
 from PyQt5.QtCore import QObject, QTimer, Qt
-from PyQt5.QtOpenGL import QGLWidget
 from PyQt5.QtGui import QScreen
 from PyQt5.QtWidgets import (
-    QApplication, QCompleter, QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSizePolicy,
+    QApplication, QCompleter, QFrame, QHBoxLayout, QLabel, QLineEdit, QOpenGLWidget, QPushButton, QSizePolicy,
     QVBoxLayout, QWidget
 )
 
@@ -14,9 +17,54 @@ from bin.card_db import CardDB
 from bin.db_manager import DBManager
 
 
-class Tabletop(QGLWidget):
+class Tabletop(QOpenGLWidget):
     def __init__(self, parent: QObject):
         super().__init__(parent)
+        self.vao_id = None
+
+    def initializeGL(self) -> None:
+        # Setup
+        GL.glClearColor(0, 0, 0, 1)
+
+        # Shaders
+        vertex_shader_code = open('vertex.glsl').read()
+        vertex_shader = compileShader(vertex_shader_code, GL.GL_VERTEX_SHADER)
+        fragment_shader_code = open('fragment.glsl').read()
+        fragment_shader = compileShader(fragment_shader_code, GL.GL_FRAGMENT_SHADER)
+        shader_program = compileProgram(vertex_shader, fragment_shader)
+        GL.glUseProgram(shader_program)
+
+        # Geometric data
+        triangle_vertices = [
+            [-.5, -.5, 0, 1, 0, 0],
+            [.5, -.5, 0, 0, 1, 0],
+            [0, .5, 0, 0, 0, 1],
+        ]
+        vertex_buffer_data = np.array(triangle_vertices, np.float32)
+
+        # VAO
+        self.vao_id = GL.glGenVertexArrays(1)
+        GL.glBindVertexArray(self.vao_id)
+
+        # VBO
+        vbo_id = GL.glGenBuffers(1)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo_id)
+        GL.glBufferData(GL.GL_ARRAY_BUFFER, vertex_buffer_data, GL.GL_STATIC_DRAW)
+        attr_pos_loc = GL.glGetAttribLocation(shader_program, 'aPos')
+        GL.glEnableVertexAttribArray(attr_pos_loc)
+        GL.glVertexAttribPointer(attr_pos_loc, 3, GL.GL_FLOAT, GL.GL_FALSE, 24, ctypes.c_void_p(0))
+        attr_col_loc = GL.glGetAttribLocation(shader_program, 'aCol')
+        GL.glEnableVertexAttribArray(attr_col_loc)
+        GL.glVertexAttribPointer(attr_col_loc, 3, GL.GL_FLOAT, GL.GL_FALSE, 24, ctypes.c_void_p(12))
+
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
+        GL.glBindVertexArray(0)
+
+    def paintGL(self) -> None:
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+        GL.glBindVertexArray(self.vao_id)
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, 3)
+        GL.glBindVertexArray(0)
 
     def add_card(self, card):
         raise NotImplementedError
