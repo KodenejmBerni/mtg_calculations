@@ -1,10 +1,15 @@
 #version 330
 
-in vec3 aPos, aCol;
-out vec3 vCol;
+in vec3 aPosition;
+in vec2 aTexture;
+
+out vec2 vTexture;
+
+uniform mat4 rotation;
 
 void main()
 {
-    gl_Position = vec4(aPos, 1.0);
-    vCol = aCol;
+    vTexture = aTexture;
+
+    gl_Position = rotation * vec4(aPosition, 1.0);
 }

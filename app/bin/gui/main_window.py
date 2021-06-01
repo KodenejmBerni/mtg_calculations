@@ -31,6 +31,7 @@ class MainWindow(QWidget):
         self._generate_search_bar_completer()
 
         self._make_connections()
+        tabletop.refresh_timer.start()
 
     def _init_manager(self) -> DBManager:
         db_manager = DBManager(

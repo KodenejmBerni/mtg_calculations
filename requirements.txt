@@ -2,3 +2,4 @@ matplotlib
 numpy
 PyOpenGL
 PyQt5
+Pillow
