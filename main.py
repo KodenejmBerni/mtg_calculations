@@ -5,9 +5,9 @@ from utils import get_probability, normalize_percentage
 
 
 def lands():
-    deck_size = 99
-    hand_size = 7 + 4
-    x = np.arange(0, 50)
+    deck_size = 60
+    hand_size = 7
+    x = np.arange(0, 30)
 
     # Terrible scenarios
     y = []
@@ -83,15 +83,11 @@ def lands():
         y.append(normalize_percentage(probability))
     plt.scatter(x, y, s=10)
 
-    plt.xlabel('[-]')
-    plt.ylabel('[%]', rotation=0)
-    plt.show()
-
 
 def other_cards():
-    deck_size = 99
-    hand_size = 7 + 7
-    x = np.arange(0, 10)
+    deck_size = 60
+    hand_size = 7
+    x = np.arange(0, 30)
 
     for i in range(0, 6):
         y = []
@@ -105,11 +101,12 @@ def other_cards():
             y.append(normalize_percentage(probability))
         plt.scatter(x, y, s=10)
 
-    plt.xlabel('[-]')
-    plt.ylabel('[%]', rotation=0)
-    plt.show()
-
 
 if __name__ == '__main__':
     # lands()
     other_cards()
+
+    plt.xlabel('[-]')
+    plt.ylabel('[%]', rotation=0)
+    plt.grid()
+    plt.show()
