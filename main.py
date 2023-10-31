@@ -1,95 +1,18 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import MultipleLocator
 
 from utils import get_probability, normalize_percentage
 
-
-def lands():
+if __name__ == '__main__':
     deck_size = 60
     hand_size = 7
     x = np.arange(0, 30)
 
-    # Terrible scenarios
-    y = []
-    for elem in x:
-        probability_0 = get_probability(
-            deck_size=deck_size,
-            hand_size=hand_size,
-            rel_cards_deck=elem,
-            rel_cards_hand=0,
-        )
-        probability_1 = get_probability(
-            deck_size=deck_size,
-            hand_size=hand_size,
-            rel_cards_deck=elem,
-            rel_cards_hand=1,
-        )
-        probability_5 = get_probability(
-            deck_size=deck_size,
-            hand_size=hand_size,
-            rel_cards_deck=elem,
-            rel_cards_hand=5,
-        )
-        probability_6 = get_probability(
-            deck_size=deck_size,
-            hand_size=hand_size,
-            rel_cards_deck=elem,
-            rel_cards_hand=6,
-        )
-        probability_7 = get_probability(
-            deck_size=deck_size,
-            hand_size=hand_size,
-            rel_cards_deck=elem,
-            rel_cards_hand=7,
-        )
-        probability = (probability_0 + probability_1 + probability_5 + probability_6 + probability_7) ** 3
-        y.append(normalize_percentage(probability))
-    plt.scatter(x, y, s=10)
-
-    # Git good scenarios
-    y = []
-    for elem in x:
-        probability_2 = get_probability(
-            deck_size=deck_size,
-            hand_size=hand_size,
-            rel_cards_deck=elem,
-            rel_cards_hand=2,
-        )
-        probability = probability_2
-        y.append(normalize_percentage(probability))
-    plt.scatter(x, y, s=10)
-
-    y = []
-    for elem in x:
-        probability_3 = get_probability(
-            deck_size=deck_size,
-            hand_size=hand_size,
-            rel_cards_deck=elem,
-            rel_cards_hand=3,
-        )
-        probability = probability_3
-        y.append(normalize_percentage(probability))
-    plt.scatter(x, y, s=10)
-
-    y = []
-    for elem in x:
-        probability_4 = get_probability(
-            deck_size=deck_size,
-            hand_size=hand_size,
-            rel_cards_deck=elem,
-            rel_cards_hand=4,
-        )
-        probability = probability_4
-        y.append(normalize_percentage(probability))
-    plt.scatter(x, y, s=10)
-
-
-def other_cards():
-    deck_size = 60
-    hand_size = 7
-    x = np.arange(0, 30)
-
-    for i in range(0, 6):
+    fig = plt.figure()
+    fig.show()
+    ax = fig.add_subplot()
+    for i in range(0, 5):
         y = []
         for elem in x:
             probability = get_probability(
@@ -99,14 +22,11 @@ def other_cards():
                 rel_cards_hand=i,
             )
             y.append(normalize_percentage(probability))
-        plt.scatter(x, y, s=10)
+        ax.scatter(x, y, s=10, )
+        ax.plot(x, y)
 
-
-if __name__ == '__main__':
-    # lands()
-    other_cards()
-
-    plt.xlabel('[-]')
-    plt.ylabel('[%]', rotation=0)
-    plt.grid()
-    plt.show()
+    ax.xaxis.set_major_locator(MultipleLocator())
+    ax.set_title(f'Deck: {deck_size}, Cards drawn: {hand_size}')
+    ax.set_xlabel('[-]')
+    ax.set_ylabel('[%]', rotation=0)
+    ax.grid()
